@@ -1,0 +1,256 @@
+class supplierClass:
+    def __init__(self, root):
+        self.root = root
+        self.root.geometry("1325x650+200+130")
+        self.root.title("Inventory Management System")
+        self.root.config(bg="white")
+
+        # ================= VARIABLES =================
+        self.var_sup_invoice = StringVar()
+        self.var_sup_name = StringVar()
+        self.var_sup_contact = StringVar()
+
+        self.var_searchtxt = StringVar()
+
+        self.var_cat_id = StringVar()
+        self.var_cat_name = StringVar()
+
+        # ================= SUPPLIER UI =================
+        Label(self.root, text="Supplier Details", font=("goudy old style",15, "bold"),bg="#184a45",fg="white",bd=3,relief=RIDGE).place(x=50,y=5,width=1210,height=30)
+        Label(self.root, text="Manage Product Category", font=("goudy old style",15, "bold"),bg="#184a45",fg="white",bd=3,relief=RIDGE).place(x=50,y=350,width=1210,height=30)
+
+
+        Label(self.root, text="Invoice No",font=("goudy old style", 15,"bold"),bg="White").place(x=50, y=60)
+        Entry(self.root, textvariable=self.var_sup_invoice,font=("goudy old style", 15),bg="lightyellow").place(x=165, y=60,width=180)
+
+        Label(self.root, text="Name",font=("goudy old style", 15,"bold"),bg="White").place(x=50, y=100)
+        Entry(self.root, textvariable=self.var_sup_name,font=("goudy old style", 15),bg="lightyellow").place(x=165, y=100,width=180)
+
+        Label(self.root, text="Contact",font=("goudy old style", 15,"bold"),bg="White").place(x=50, y=140)
+        Entry(self.root, textvariable=self.var_sup_contact,font=("goudy old style", 15),bg="lightyellow").place(x=165, y=140,width=180)
+
+        Label(self.root, text="Description",font=("goudy old style", 15,"bold"),bg="White").place(x=50, y=180)
+        self.txt_desc = Text(self.root,font=("goudy old style", 15),bg="lightyellow")
+        self.txt_desc.place(x=165, y=180,width=485,height=100)
+
+        Button(self.root, text="Add", command=self.add_supplier,font=("goudy old style",15),bg="#2196f3",fg="white",cursor="hand2").place(x=165, y=300,width=110,height=28)
+        Button(self.root, text="Update", command=self.update_supplier,font=("goudy old style",15),bg="#068511",fg="white",cursor="hand2").place(x=290, y=300,width=110,height=28)
+        Button(self.root, text="Delete", command=self.delete_supplier,font=("goudy old style",15),bg="#e73737",fg="white",cursor="hand2").place(x=415, y=300,width=110,height=28)
+        Button(self.root, text="Clear", command=self.clear_supplier,font=("goudy old style",15),bg="#737692",fg="white",cursor="hand2").place(x=540, y=300,width=110,height=28)
+
+        # ================= SEARCH =================
+        lbl_search=Label(self.root,text="Search By Invoice No.",bg="white",font=("times new roman",15))
+        lbl_search.place(x=700,y=60)
+        Entry(self.root, textvariable=self.var_searchtxt,font=("goudy old style",15),bg="lightyellow").place(x=890, y=60)
+        Button(self.root, text="Search", command=self.search_supplier,font=("goudy old style",15),bg="#e47d33",fg="white",cursor="hand2").place(x=1110, y=59,width=150,height=28)
+
+        # ================= SUPPLIER TABLE =================
+        
+        emp_frame=Frame(self.root,bd=3,relief=RIDGE)
+        emp_frame.place(x=700, y=100, width=560, height=230)
+
+        #self.supplierTable = ttk.Treeview(self.root, columns=("invoice", "name", "contact", "desc"), show="headings")
+        scrolly=Scrollbar(emp_frame,orient=VERTICAL)
+        scrollx=Scrollbar(emp_frame,orient=HORIZONTAL)
+        self.supplierTable=ttk.Treeview(emp_frame,columns=("invoice","name","contact","desc"),yscrollcommand=scrolly.set,xscrollcommand=scrollx.set,show="headings")
+        scrollx.pack(side=BOTTOM,fill=X)
+        scrolly.pack(side=RIGHT,fill=Y)
+        scrollx.config(command=self.supplierTable.xview)
+        scrolly.config(command=self.supplierTable.yview)
+
+
+        
+        self.supplierTable.heading("invoice", text="Invoice")
+        self.supplierTable.heading("name", text="Name")
+        self.supplierTable.heading("contact", text="Contact")
+        self.supplierTable.heading("desc", text="Description")
+
+        self.supplierTable.column("invoice",width=90)
+        self.supplierTable.column("name",width=100)
+        self.supplierTable.column("contact",width=100)
+        self.supplierTable.column("desc",width=100)
+        self.supplierTable.pack(fill=BOTH,expand=1)
+        self.supplierTable.bind("<ButtonRelease-1>", self.get_supplier_data)
+       
+
+        # ================= CATEGORY UI =================
+        Label(self.root, text="Manage Product Category :",font=("goudy old style",15,"bold"),bg="#ffffff").place(x=50, y=390)
+
+        Entry(self.root, textvariable=self.var_cat_name,font=("goudy old style",15),bg="lightyellow").place(x=165, y=430,width=235)
+
+        Button(self.root, text="Add", command=self.add_category,font=("goudy old style",15),bg="#4caf50",fg="white",cursor="hand2").place(x=415, y=430,width=110,height=28)
+        Button(self.root, text="Delete", command=self.delete_category,font=("goudy old style",15),bg="#ff0000",fg="white",cursor="hand2").place(x=540, y=430,width=110,height=28)
+
+        # ================= CATEGORY TABLE =================
+        cat_frame=Frame(self.root,bd=3,relief=RIDGE)
+        cat_frame.place(x=164, y=465, width=485, height=170)
+
+        
+        scrolly=Scrollbar(cat_frame,orient=VERTICAL)
+        scrollx=Scrollbar(cat_frame,orient=HORIZONTAL)
+        self.categoryTable = ttk.Treeview(cat_frame, columns=("cid", "name"),yscrollcommand=scrolly.set,xscrollcommand=scrollx.set, show="headings")
+        scrollx.pack(side=BOTTOM,fill=X)
+        scrolly.pack(side=RIGHT,fill=Y)
+        scrollx.config(command=self.categoryTable.xview)
+        scrolly.config(command=self.categoryTable.yview)
+        
+        
+        self.categoryTable.heading("cid", text="ID")
+        self.categoryTable.heading("name", text="Name")
+        self.categoryTable.column("cid",width=90)
+        self.categoryTable.column("name",width=100)
+        self.categoryTable.pack(fill=BOTH,expand=1)
+        self.categoryTable.bind("<ButtonRelease-1>", self.get_category_data)
+
+        # =================== LOAD DATA =================
+        self.show_supplier()
+        self.show_category()
+
+     
+
+    # ================= SUPPLIER FUNCTIONS =================
+    def add_supplier(self):
+        if self.var_sup_invoice.get() == "":
+            messagebox.showerror("Error", "Invoice no. must be required")
+            return
+
+        con = sqlite3.connect("ims.db")
+        cur = con.cursor()
+
+        cur.execute("SELECT * FROM supplier WHERE invoice=?", (self.var_sup_invoice.get(),))
+        if cur.fetchone():
+            messagebox.showerror("Error", "Invoice no. already assigned, try different")
+        else:
+            cur.execute("INSERT INTO supplier VALUES (?,?,?,?)", (
+                self.var_sup_invoice.get(),
+                self.var_sup_name.get(),
+                self.var_sup_contact.get(),
+                self.txt_desc.get("1.0", END)
+            ))
+            con.commit()
+            messagebox.showinfo("Success", "Supplier Addedd Successfully",parent=self.root)
+
+        con.close()
+        self.show_supplier()
+
+    def show_supplier(self):
+        con = sqlite3.connect("ims.db")
+        cur = con.cursor()
+
+        cur.execute("SELECT * FROM supplier")
+        rows = cur.fetchall()
+
+        self.supplierTable.delete(*self.supplierTable.get_children())
+        for row in rows:
+            self.supplierTable.insert("", END, values=row)
+
+        con.close()
+
+    def get_supplier_data(self, ev):
+        row = self.supplierTable.item(self.supplierTable.focus())["values"]
+
+        if row:
+            self.var_sup_invoice.set(row[0])
+            self.var_sup_name.set(row[1])
+            self.var_sup_contact.set(row[2])
+            self.txt_desc.delete("1.0", END)
+            self.txt_desc.insert(END, row[3])
+
+    def update_supplier(self):
+        
+        con = sqlite3.connect("ims.db")
+        cur = con.cursor()
+
+        cur.execute("UPDATE supplier SET name=?, contact=?, desc=? WHERE invoice=?", (
+            self.var_sup_name.get(),
+            self.var_sup_contact.get(),
+            self.txt_desc.get("1.0", END),
+            self.var_sup_invoice.get()
+        ))
+
+        con.commit()
+        con.close()
+        messagebox.showinfo("Success", "Updated Successfully")
+        self.show_supplier()
+
+    def delete_supplier(self):
+        con = sqlite3.connect("ims.db")
+        cur = con.cursor()
+
+        cur.execute("DELETE FROM supplier WHERE invoice=?", (self.var_sup_invoice.get(),))
+        con.commit()
+        con.close()
+
+        messagebox.showinfo("Success", "Supplier Updated Successfully")
+        self.clear_supplier()
+
+    def clear_supplier(self):
+        self.var_sup_invoice.set("")
+        self.var_sup_name.set("")
+        self.var_sup_contact.set("")
+        self.txt_desc.delete("1.0", END)
+
+    def search_supplier(self):
+        con = sqlite3.connect("ims.db")
+        cur = con.cursor()
+
+        cur.execute("SELECT * FROM supplier WHERE invoice=?", (self.var_searchtxt.get(),))
+        row = cur.fetchone()
+
+        self.supplierTable.delete(*self.supplierTable.get_children())
+
+        if row:
+            self.supplierTable.insert("", END, values=row)
+        else:
+            messagebox.showerror("Error", "Not Found")
+
+        con.close()
+
+    # ================= CATEGORY FUNCTIONS =================
+    def add_category(self):
+        con = sqlite3.connect("ims.db")
+        cur = con.cursor()
+
+        cur.execute("INSERT INTO category(name) VALUES(?)", (self.var_cat_name.get(),))
+        con.commit()
+        con.close()
+
+        messagebox.showinfo("Success", "Category Addedd Successfully")
+        self.show_category()
+
+    def show_category(self):
+        con = sqlite3.connect("ims.db")
+        cur = con.cursor()
+
+        cur.execute("SELECT * FROM category")
+        rows = cur.fetchall()
+
+        self.categoryTable.delete(*self.categoryTable.get_children())
+        for row in rows:
+            self.categoryTable.insert("", END, values=row)
+
+        con.close()
+
+    def get_category_data(self, ev):
+        row = self.categoryTable.item(self.categoryTable.focus())["values"]
+
+        if row:
+            self.var_cat_id.set(row[0])
+            self.var_cat_name.set(row[1])
+
+    def delete_category(self):
+        con = sqlite3.connect("ims.db")
+        cur = con.cursor()
+
+        cur.execute("DELETE FROM category WHERE cid=?", (self.var_cat_id.get(),))
+        con.commit()
+        con.close()
+
+        messagebox.showinfo("Success", "Category Deleted Successfully")
+        self.show_category()
+
+
+if __name__ == "__main__":
+    root = Tk()
+    obj = supplierClass(root)
+    root.mainloop()
